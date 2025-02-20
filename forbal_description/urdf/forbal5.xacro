@@ -1,0 +1,268 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<xacro:macro name="forbal5" params="parent *origin">
+    <link name="base">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.00774921  0.00017523  0.01494751"/>
+            <mass value="0.19423496"/>
+            <inertia ixx="0.00015091" ixy="0.00000039" ixz="0.00001512" iyy="0.00009903" iyz="-0.00000041" izz="0.00016921"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/base_ext.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="ee">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00244408 0.00138492 0.00000000"/>
+            <mass value="0.02710954"/>
+            <inertia ixx="0.00001292" ixy="0.00000009" ixz="0.00000000" iyy="0.00000872" iyz="-0.00000000" izz="0.00001869"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/link_ee_ext.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="ee_imp">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.00000000 -0.00000000 -0.00637205"/>
+            <mass value="0.00301832"/>
+            <inertia ixx="0.00000028" ixy="0.00000000" ixz="0.00000000" iyy="0.00000055" iyz="-0.00000000" izz="0.00000060"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/link_imp_ext.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="ee_mkr">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <mass value="0.00000000"/>
+            <inertia ixx="0.00000000" ixy="0.00000000" ixz="0.00000000" iyy="0.00000000" iyz="0.00000000" izz="0.00000000"/>
+        </inertial>
+    </link>
+    <link name="ee_motor">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00137859 -0.01200346 -0.01739333"/>
+            <mass value="0.10200000"/>
+            <inertia ixx="0.00002692" ixy="-0.00000001" ixz="0.00000065" iyy="0.00001572" iyz="0.00000005" izz="0.00002704"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/2XL430-W250-T.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="lc1">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <mass value="0.00000000"/>
+            <inertia ixx="0.00000000" ixy="0.00000000" ixz="0.00000000" iyy="0.00000000" iyz="0.00000000" izz="0.00000000"/>
+        </inertial>
+    </link>
+    <link name="lc2">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <mass value="0.00000000"/>
+            <inertia ixx="0.00000000" ixy="0.00000000" ixz="0.00000000" iyy="0.00000000" iyz="0.00000000" izz="0.00000000"/>
+        </inertial>
+    </link>
+    <link name="link11">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.00489125 -0.00000574  0.00230041"/>
+            <mass value="0.29281186"/>
+            <inertia ixx="0.00015948" ixy="-0.00020385" ixz="0.00002365" iyy="0.00512981" iyz="-0.00000000" izz="0.00524239"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/link_11.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="link12">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.12127183 0.01675166 0.00214776"/>
+            <mass value="0.09396866"/>
+            <inertia ixx="0.00002443" ixy="-0.00001296" ixz="0.00000429" iyy="0.00039804" iyz="0.00000035" izz="0.00041215"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/link_12.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="link21">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.01196349 -0.00041782  0.00180672"/>
+            <mass value="0.29126576"/>
+            <inertia ixx="0.00017104" ixy="-0.00001931" ixz="0.00002292" iyy="0.00539388" iyz="-0.00000015" izz="0.00552078"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/link_21.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="link22">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.02274975 -0.01512589  0.00189109"/>
+            <mass value="0.15367895"/>
+            <inertia ixx="0.00003746" ixy="-0.00000308" ixz="-0.00000661" iyy="0.00263097" iyz="-0.00000004" izz="0.00265092"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/link_22.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <link name="mount">
+        <inertial>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00001204 -0.00000000  0.12463264"/>
+            <mass value="0.52805217"/>
+            <inertia ixx="0.00561054" ixy="0.00000000" ixz="-0.00000073" iyy="0.00498348" iyz="0.00000123" izz="0.00099429"/>
+        </inertial>
+        <visual>
+            <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+            <geometry>
+                <mesh filename="package://forbal_description/meshes/mount_ext.dae" scale="1.00000000 1.00000000 1.00000000"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.50000000 0.50000000 0.50000000 1.00000000"/>
+            </material>
+        </visual>
+    </link>
+    <joint name="origin_to_base" type="fixed">
+        <xacro:insert_block name="origin" />
+        <parent link="${parent}"/>
+        <child link="base"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint11" type="revolute">
+        <parent link="mount"/>
+        <child link="link11"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 -0.04310000  0.22750000"/>
+        <axis xyz="0.00000000 1.00000000 0.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+    <joint name="joint11_cm" type="fixed">
+        <parent link="link11"/>
+        <child link="link11_cm"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.20000000  0.00000000  0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint12" type="revolute">
+        <parent link="link11"/>
+        <child link="link12"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 0.00000000 0.00000000"/>
+        <axis xyz="0.00000000 -1.00000000  0.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+    <joint name="joint21" type="revolute">
+        <parent link="mount"/>
+        <child link="link21"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.04310000 0.22750000"/>
+        <axis xyz="0.00000000 -1.00000000  0.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+    <joint name="joint21_cm" type="fixed">
+        <parent link="link21"/>
+        <child link="link21_cm"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.20000000  0.00000000  0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint22" type="revolute">
+        <parent link="link21"/>
+        <child link="link22"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 0.00000000 0.00000000"/>
+        <axis xyz="0.00000000 1.00000000 0.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+    <joint name="joint22_cm" type="fixed">
+        <parent link="link22"/>
+        <child link="link22_cm"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="-0.20000000  0.00000000  0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint_ee_mkr" type="fixed">
+        <parent link="ee_imp"/>
+        <child link="ee_mkr"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00750000 0.00000000 0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint_lc1_l12" type="fixed">
+        <parent link="link12"/>
+        <child link="lc1"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 0.04520000 0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint_lc_l22" type="fixed">
+        <parent link="link22"/>
+        <child link="lc2"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 -0.04100000  0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="joint_ee" type="fixed">
+        <parent link="link22"/>
+        <child link="ee"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 -0.04100000  0.00000000"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <joint name="jointei" type="revolute">
+        <parent link="ee_motor"/>
+        <child link="ee_imp"/>
+        <origin rpy="0.00000000 -1.57079633  0.00000000" xyz="0.01900000 -0.02400000 -0.01900000"/>
+        <axis xyz="0.00000000 0.00000000 1.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+    <joint name="jointem" type="revolute">
+        <parent link="ee"/>
+        <child link="ee_motor"/>
+        <origin rpy="1.57079633 -1.57079633  0.00000000" xyz="0.02500000 -0.02195000  0.00000000"/>
+        <axis xyz="0.00000000 0.00000000 1.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+    <joint name="joint0" type="revolute">
+        <parent link="base"/>
+        <child link="mount"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.00000000 0.04600000"/>
+        <axis xyz="0.00000000 0.00000000 1.00000000"/>
+        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+    </joint>
+</xacro:macro>
+</robot>

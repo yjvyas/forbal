@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot name="forcebalanced_manipulator" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find forbal_description)/urdf/forbal2.xacro" />
+  <xacro:include filename="$(find forbal_description)/urdf/forbal2.ros2_control.xacro" />
+  
+  <link name="world"/>
+
+  <xacro:forbal2 parent="world">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:forbal2>
+  <xacro:forbal_ros2_control name="forcebalanced_manipulator_ros2_control" dummy="false"/>
+  <xacro:ringmass parent="link11" mass="0.02982881" density="8050.0" radius_inner="0.0032" radius_outer="0.02">
+    <origin xyz="-0.2 0 0" rpy="0 0 0"/>
+  </xacro:ringmass>
+  <xacro:ringmass parent="link21" mass="0.32560040" density="8050.0" radius_inner="0.0032" radius_outer="0.02">
+    <origin xyz="-0.2 0 0" rpy="0 0 0"/>
+  </xacro:ringmass>
+  <xacro:ringmass parent="link22" mass="0.08713178" density="8050.0" radius_inner="0.0032" radius_outer="0.02">
+    <origin xyz="-0.2 0 0" rpy="0 0 0"/>
+  </xacro:ringmass>
+
+</robot>

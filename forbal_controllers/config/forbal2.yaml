@@ -1,0 +1,18 @@
+forbal2:
+  ros__parameters:
+    joint_1_act: "joint11"
+    joint_2_act: "joint21"
+    joint_1_psv: "joint12"
+    joint_2_psv: "joint22"
+    link_length: 0.2
+    ee_length: 0.025
+    joints_origin_x: 0.01616000
+    joints_origin_z: 0.22750000
+    joint_1_act_min: -1.25
+    joint_1_act_max: 1.45
+    joint_2_act_min: -1.5
+    joint_2_act_max: 1.28
+    joint_1_psv_min: -2.9
+    joint_1_psv_max: 2.9
+    joint_2_psv_min: 0.3
+    joint_2_psv_max: 2.9
