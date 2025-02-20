@@ -1,0 +1,131 @@
+ros2 control switch_controllers --activate joint_state_broadcaster --activate joint_trajectory_controller --deactivate velocity_controller
+
+ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [joint11, joint21],
+    points: [
+      { positions: [0.6, 0.7], time_from_start: { sec: 1 } },
+      { positions: [1.1, 1.2], time_from_start: { sec: 3 } },
+      { positions: [0.6, 0.7], time_from_start: { sec: 4 } }
+    ]
+  }
+}"
+
+ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [joint11, joint21],
+    points: [
+      { positions: [0.6, 0.7], time_from_start: { sec: 0 } }
+    ]
+  }
+}"
+
+ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [joint11, joint21],
+    points: [
+      { positions: [1.1, 1.2], time_from_start: { sec: 0 } }
+    ]
+  }
+}"
+
+## neutral position
+ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory "{ 
+  header: { 
+    stamp: { sec: 0, nanosec: 0 }, 
+    frame_id: 'world' 
+  },
+  x: [0.22],
+  y: [0.0],
+  z: [0.22],
+  time: [1.0]
+}"
+
+ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory "{ 
+  header: { 
+    stamp: { sec: 0, nanosec: 0 }, 
+    frame_id: 'world' 
+  },
+  x: [0.20,0.25,0.30,0.35,0.40,0.35,0.30,0.25,0.20],
+  y: [],
+  z: [0.00,0.05,0.10,0.05,0.00,0.05,0.10,0.05,0.00],
+  time: [0.0,0.25,0.5,0.75,1.0,1.25,1.50,1.75,2.0]
+}"
+
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.22, 0.35, 0.25, 0.22], 
+   y: [], 
+   z: [0.22, 0.32, 0.12, 0.22], 
+   time: [0.0, 1.0, 2.0, 3.5], 
+   acc_time: 1.0
+}"
+
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.22, 0.30, 0.35, 0.4], 
+   y: [], 
+   z: [0.22, 0.12, 0.12, 0.22], 
+   time: [0.0, 1.0, 2.0, 3.5], 
+   acc_time: 1.0
+}"
+
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.22, 0.40, 0.35, 0.35, 0.22], 
+   y: [], 
+   z: [0.22, 0.35, 0.07, 0.22, 0.22], 
+   time: [0.0, 1.0, 2.5, 3.5, 4.0], 
+   acc_time: 1.0
+}"
+
+## trajectory 1: diamond (position space)
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.22, 0.32, 0.42, 0.32, 0.22], 
+   y: [], 
+   z: [0.22, 0.32, 0.22, 0.12, 0.22], 
+   time: [0.0, 1.0, 2.0, 3.0, 4.0], 
+   acc_time: 1.0
+}"
+
+## trajectory 2: diamond (joint space)
+ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory "{ 
+  header: { 
+    stamp: { sec: 0, nanosec: 0 }, 
+    frame_id: 'world' 
+  },
+  x: [0.22, 0.32, 0.42, 0.32, 0.22], 
+  y: [],
+  z: [0.22, 0.32, 0.22, 0.12, 0.22], 
+  time: [0.0, 1.0, 2.0, 3.0, 4.0], 
+}"
+
+## trajectory 3: figure of 8
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.26, 0.29535533905932736, 0.31, 0.29535533905932736, 0.26, 0.22464466094067264, 0.21, 0.22464466094067264, 0.26, 0.29535533905932736, 0.31, 0.29535533905932736, 0.26, 0.22464466094067264, 0.21, 0.22464466094067264, 0.26], 
+   y: [], 
+   z: [0.20, 0.20732233047033632, 0.225, 0.2426776695296637, 0.25, 0.2426776695296637, 0.225, 0.20732233047033632, 0.20, 0.19267766952966367, 0.175, 0.1573223304703363, 0.15, 0.1573223304703363, 0.175, 0.19267766952966367, 0.20], 
+   time: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0], 
+   acc_time: 1.0
+}"
+
+
+## trajectory 4: circle (for drawing)
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.25,0.250615583,0.252447174,0.255449674,0.25954915,0.264644661,0.270610737,0.277300475,0.28454915,0.292178277,0.3,0.307821723,0.31545085,0.322699525,0.329389263,0.335355339,0.34045085,0.344550326,0.347552826,0.349384417,0.35,0.349384417,0.347552826,0.344550326,0.34045085,0.335355339,0.329389263,0.322699525,0.31545085,0.307821723,0.3,0.292178277,0.28454915,0.277300475,0.270610737,0.264644661,0.25954915,0.255449674,0.252447174,0.250615583,0.25
+], 
+   y: [], 
+   z: [0.22,0.212178277,0.20454915,0.197300475,0.190610737,0.184644661,0.17954915,0.175449674,0.172447174,0.170615583,0.17,0.170615583,0.172447174,0.175449674,0.17954915,0.184644661,0.190610737,0.197300475,0.20454915,0.212178277,0.22,0.227821723,0.23545085,0.242699525,0.249389263,0.255355339,0.26045085,0.264550326,0.267552826,0.269384417,0.27,0.269384417,0.267552826,0.264550326,0.26045085,0.255355339,0.249389263,0.242699525,0.23545085,0.227821723,0.22
+], 
+   time: [0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0,3.2,3.4,3.6,3.8,4.0,4.2,4.4,4.6,4.8,5.0,5.2,5.4,5.6,5.8,6.0,6.2,6.4,6.6,6.8,7.0,7.2,7.4,7.6,7.8,8.0], 
+   acc_time: 1.0
+}"

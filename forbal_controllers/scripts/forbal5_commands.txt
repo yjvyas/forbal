@@ -1,0 +1,11 @@
+ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [joint0, joint11, joint21, jointem, jointei],
+    points: [
+      { positions: [0.0, 0.6, 0.7, 0.0, 0.0], time_from_start: { sec: 1 } },
+      { positions: [0.5, 1.1, 1.2, -0.1, 0.5], time_from_start: { sec: 3 } },
+      { positions: [-0.5, 0.4, 0.3, 0.1, -0.5], time_from_start: { sec: 5 } },
+      { positions: [0.0, 0.6, 0.7, 0.0, 0.0], time_from_start: { sec: 7 } }
+    ]
+  }
+}"
