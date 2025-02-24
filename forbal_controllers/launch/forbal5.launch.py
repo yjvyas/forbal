@@ -18,50 +18,37 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import ExecuteProcess, DeclareLaunchArgument, LogInfo
-from launch.substitutions import LaunchConfiguration, Command
+from launch.actions import ExecuteProcess
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 
 import xacro
 
-
 def generate_launch_description():
-    robot_name = "forbal2"
+    robot_name = "forbal5"
     package_name = "forbal_description"
-    # dummy = LaunchConfiguration('dummy')
-    print(LaunchConfiguration('dummy').perform(None))
-
-    
     rviz_config = os.path.join(get_package_share_directory(
-        package_name), "launch", robot_name + ".rviz")
+        "forbal_controllers"), "launch", robot_name + ".rviz")
     robot_description = os.path.join(get_package_share_directory(
         package_name), "urdf", robot_name + ".urdf.xacro")
-    robot_description_config = xacro.process_file(robot_description).toxml()
-    # robot_description_config = Command(['xacro ', robot_description, ' dummy:=', LaunchConfiguration('dummy')])
+    robot_description_config = xacro.process_file(robot_description)
 
     controller_config = os.path.join(
         get_package_share_directory(
-            package_name), "controllers", "forbal2.yaml"
+            package_name), "controllers", "forbal5.yaml"
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument(
-            'dummy',
-            default_value='false',
-            description="Use dummy driver for ROS2 control node with Dynamixel"
-        ),
-        # LogInfo(
-        #     condition=None,
-        #     msg="The value of dummy argument is: {}".format(LaunchConfiguration('dummy'))
-        # ),
         ExecuteProcess(
             cmd=['setserial /dev/ttyUSB1 low_latency'],
             shell=True
         ),
+
         Node(
             package="controller_manager",
             executable="ros2_control_node",
             parameters=[
-                {"robot_description": robot_description_config}, controller_config],
+                {"robot_description": robot_description_config.toxml()}, controller_config],
             output="screen",
         ),
 
@@ -91,8 +78,17 @@ def generate_launch_description():
             executable="robot_state_publisher",
             name="robot_state_publisher",
             parameters=[
-                {"robot_description": robot_description_config}],
+                {"robot_description": robot_description_config.toxml()}],
             output="screen",
+            remappings=[("/joint_states","/joint_states_fixed")],
+        ),
+
+        Node(
+            package="forbal_controllers",
+            executable="forbal5",
+            name="forbal2",
+            output="screen",
+            # parameters=[os.path.join(get_package_share_directory('forbal_controllers'),'config','forbal5.yaml')],
         ),
 
         Node(

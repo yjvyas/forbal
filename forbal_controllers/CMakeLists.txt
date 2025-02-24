@@ -15,6 +15,8 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(orocos_kdl_vendor REQUIRED)
+find_package(kdl_parser REQUIRED)
 find_package(robot_state_publisher REQUIRED)
 find_package(xacro REQUIRED)
 find_package(urdf REQUIRED)
@@ -26,27 +28,47 @@ find_package(forbal_interfaces REQUIRED)
 
 include_directories(include)
 
-add_executable(forbal2 
-  src/forbal2.cpp
-)
+add_executable(forbal2 src/forbal2.cpp)
+add_executable(forbal5 src/forbal5.cpp)
 
 target_include_directories(forbal2 PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:include>)
+
+target_include_directories(forbal5 PUBLIC
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:include>)
+
 target_compile_features(forbal2 PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(forbal5 PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
 ament_target_dependencies(forbal2 
-  rclcpp
-  rclcpp_action
-  control_msgs
-  geometry_msgs
-  sensor_msgs
-  trajectory_msgs
-  visualization_msgs
-  forbal_interfaces
+rclcpp
+rclcpp_action
+control_msgs
+geometry_msgs
+sensor_msgs
+trajectory_msgs
+visualization_msgs
+forbal_interfaces
 )
 
-install(TARGETS forbal2
+ament_target_dependencies(forbal5 
+rclcpp
+rclcpp_action
+control_msgs
+geometry_msgs
+sensor_msgs
+trajectory_msgs
+visualization_msgs
+forbal_interfaces
+orocos_kdl_vendor
+kdl_parser
+)
+
+install(TARGETS 
+    forbal2
+    forbal5
     DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -61,7 +61,7 @@
       <param name="Profile_Velocity">0</param>
       <param name="Profile_Acceleration">0</param>
     </joint>
-    <joint name="jointem">
+    <joint name="joint3">
       <param name="id">3</param>
       <command_interface name="position"/>
       <command_interface name="velocity"/>
@@ -76,7 +76,7 @@
       <param name="Profile_Velocity">0</param>
       <param name="Profile_Acceleration">0</param>
     </joint>
-    <joint name="jointei">
+    <joint name="joint4">
       <param name="id">4</param>
       <command_interface name="position"/>
       <command_interface name="velocity"/>

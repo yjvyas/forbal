@@ -17,8 +17,8 @@ velocity_controller:
       - joint0
       - joint11
       - joint21
-      - jointem
-      - jointei
+      - joint3
+      - joint4
 
     state_interfaces:
       - velocity
@@ -29,8 +29,8 @@ joint_trajectory_controller:
       - joint0
       - joint11
       - joint21
-      - jointem
-      - jointei
+      - joint3
+      - joint4
 
     command_interfaces:
       - position

@@ -116,7 +116,7 @@ Forbal2Controller::Forbal2Controller() : Node("forbal2_controller") {
   );
 
   RCLCPP_INFO(this->get_logger(),
-        "Initialised PositionRombusController.");
+        "Initialised Forbal2Controller.");
 }
 
 void Forbal2Controller::point_callback_(const geometry_msgs::msg::PointStamped::SharedPtr msg) {

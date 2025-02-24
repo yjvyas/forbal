@@ -26,6 +26,8 @@
   <depend>rviz2</depend>
   <depend>ros2_control</depend>
   <depend>ros2_controllers</depend>
+  <depend>orocos_kdl_vendor</depend>
+  <depend>kdl_parser</depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>

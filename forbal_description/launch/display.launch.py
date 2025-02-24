@@ -22,7 +22,7 @@ import xacro
 
 
 def generate_launch_description():
-    robot_name = "forbal2"
+    robot_name = "forbal5"
     package_name = "forbal_description"
     rviz_config = os.path.join(get_package_share_directory(
         package_name), "launch", robot_name + ".rviz")
