@@ -108,7 +108,7 @@ Forbal2Controller::Forbal2Controller() : Node("forbal2_controller") {
     std::bind(&Forbal2Controller::handle_goal, this, std::placeholders::_1, std::placeholders::_2),
     std::bind(&Forbal2Controller::handle_cancel, this, std::placeholders::_1),
     std::bind(&Forbal2Controller::handle_accepted, this, std::placeholders::_1)
-);
+  );
 
   joint_trajectory_client_ = rclcpp_action::create_client<control_msgs::action::FollowJointTrajectory>(
       this,

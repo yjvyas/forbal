@@ -1,0 +1,25 @@
+# Follow5DOFTrajectory.action
+# Request definition
+string type
+float32 dt
+float64[] x
+float64[] y
+float64[] z
+float64[] pitch
+float64[] yaw
+float64[] time
+float64 acc_time 1.0
+---
+# Result definition
+int32 error_code
+int32 SUCCESSFUL = 0
+int32 INVALID_GOAL = -1
+int32 JOINT_TRAJECTORY_ERROR = -3
+int32 POSITION_TOLERANCE_EXCEEDED = -4
+string error_string
+---
+# Feedback definition
+std_msgs/Header header
+builtin_interfaces/Duration time_to_completion
+float64 position_error
+
