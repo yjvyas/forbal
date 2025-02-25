@@ -3,13 +3,14 @@
   <xacro:include filename="$(find forbal_description)/urdf/forbal5.xacro" />
   <xacro:include filename="$(find forbal_description)/urdf/forbal2.xacro" />
   <xacro:include filename="$(find forbal_description)/urdf/forbal5.ros2_control.xacro" />
+  <xacro:arg name="dummy" default="false"/>
   
   <link name="world"/>
 
   <xacro:forbal5 parent="world">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:forbal5>
-  <xacro:forbal5_ros2_control name="forbal5" dummy="false"/>
+  <xacro:forbal5_ros2_control name="forbal5" dummy="$(arg dummy)"/>
   <xacro:ringmass parent="link11" mass="0.02982881" density="8050.0" radius_inner="0.0032" radius_outer="0.02">
     <origin xyz="-0.2 0 0" rpy="0 0 0"/>
   </xacro:ringmass>

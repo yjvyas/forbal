@@ -20,7 +20,7 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration
 
 import xacro
 
@@ -31,7 +31,7 @@ def generate_launch_description():
         "forbal_controllers"), "launch", robot_name + ".rviz")
     robot_description = os.path.join(get_package_share_directory(
         package_name), "urdf", robot_name + ".urdf.xacro")
-    robot_description_config = xacro.process_file(robot_description)
+    robot_description_config = Command(['xacro ',robot_description,' dummy:=',LaunchConfiguration("sim")])
 
     controller_config = os.path.join(
         get_package_share_directory(
@@ -39,6 +39,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument("sim", default_value="false", description="Use simulation mode"),
         ExecuteProcess(
             cmd=['setserial /dev/ttyUSB1 low_latency'],
             shell=True
@@ -47,8 +48,7 @@ def generate_launch_description():
         Node(
             package="controller_manager",
             executable="ros2_control_node",
-            parameters=[
-                {"robot_description": robot_description_config.toxml()}, controller_config],
+            parameters=[{'robot_description': robot_description_config}, controller_config],
             output="screen",
         ),
 
@@ -77,8 +77,7 @@ def generate_launch_description():
             package="robot_state_publisher",
             executable="robot_state_publisher",
             name="robot_state_publisher",
-            parameters=[
-                {"robot_description": robot_description_config.toxml()}],
+            parameters=[{'robot_description': robot_description_config}],
             output="screen",
             remappings=[("/joint_states","/joint_states_fixed")],
         ),
