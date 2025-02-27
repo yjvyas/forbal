@@ -103,7 +103,7 @@ public:
       double z;
   };
 
-  struct PointAngle5D {
+  struct Point5D {
       double x;
       double y;
       double z;
@@ -252,6 +252,16 @@ private:
     q._22 = M_PI-beta;
   }
 
+  KDL::Frame point5D_to_Frame(const Point5D& point) {
+    return KDL::Frame(KDL::Rotation::RotY(point.pitch)*KDL::Rotation::RotZ(point.yaw),
+                      KDL::Vector(point.x, point.y, point.z));
+  }
+
+  JointAngles frame_to_JointAngles_NRJL(KDL::Frame) {
+    JointAngles q;
+    return q;
+  }
+
   rclcpp_action::GoalResponse handle_goal(
       const rclcpp_action::GoalUUID & uuid, 
       const std::shared_ptr<const Follow5DOFTrajectory::Goal> goal) {
@@ -297,6 +307,7 @@ private:
   KDL::Tree tree_;
   KDL::Chain chain_world_ee_;
   KDL::Chain chain_world_eemkr_;
+  KDL::Chain chain_ee_eeimp_;
   KDL::Frame eemkr_pose_;
   std::unique_ptr<KDL::ChainFkSolverPos_recursive> solver_ee_pos_;
   std::unique_ptr<KDL::ChainFkSolverPos_recursive> solver_eemkr_pos_;

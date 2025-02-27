@@ -18,8 +18,8 @@
         <state_interface name="position"/>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
-        <!-- <param name="Position_P_Gain">6000</param> -->
-        <!-- <param name="Position_D_Gain">10000</param> -->
+        <!-- <param name="Position_P_Gain">8000</param> -->
+        <!-- <param name="Position_D_Gain">12000</param> -->
         <param name="Position_P_Gain">12500</param>
         <param name="Position_D_Gain">16000</param>
         <param name="Position_I_Gain">0</param> 
@@ -35,15 +35,15 @@
         <state_interface name="position"/>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
-        <!-- <param name="Position_P_Gain">6000</param> -->
-        <!-- <param name="Position_D_Gain">10000</param> -->
-        <param name="Position_P_Gain">14000</param>
-        <param name="Position_D_Gain">16000</param>
+        <!-- <param name="Position_P_Gain">9000</param> -->
+        <!-- <param name="Position_D_Gain">13000</param> -->
+        <param name="Position_P_Gain">15000</param>
+        <param name="Position_D_Gain">20000</param>
         <param name="Position_I_Gain">0</param>
         <param name="Velocity_P_Gain">1920</param>
         <param name="Velocity_I_Gain">0</param>
-        <param name="Profile_Velocity">50</param>
-        <param name="Profile_Acceleration">50</param>
+        <param name="Profile_Velocity">0</param>
+        <param name="Profile_Acceleration">0</param>
       </joint>
     </ros2_control>
 
