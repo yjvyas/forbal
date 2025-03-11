@@ -13,7 +13,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include <geometry_msgs/msg/point_stamped.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_array.hpp>
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
@@ -65,6 +67,11 @@ public:
 
     ee_ref_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
       "ee_ref",
+      10
+    );
+
+    ee_traj_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>(
+      "ee_traj",
       10
     );
 
@@ -227,16 +234,7 @@ private:
         auto msg_ee = geometry_msgs::msg::PoseStamped();
         msg_ee.header.stamp = this->get_clock()->now();
         msg_ee.header.frame_id = "world";
-        msg_ee.pose.position.x = eemkr_pose_.p.x();
-        msg_ee.pose.position.y = eemkr_pose_.p.y();
-        msg_ee.pose.position.z = eemkr_pose_.p.z();
-  
-        double qx, qy, qz, qw;
-        eemkr_pose_.M.GetQuaternion(qx, qy, qz, qw);
-        msg_ee.pose.orientation.x = qx;
-        msg_ee.pose.orientation.y = qy;
-        msg_ee.pose.orientation.z = qz;
-        msg_ee.pose.orientation.w = qw;
+        msg_ee.pose = frame_to_PoseMsg(eemkr_pose_);
         ee_ref_pub_->publish(msg_ee);
         } else {
           RCLCPP_ERROR(this->get_logger(),"Pose estimate failed, code: %d.",result);
@@ -257,7 +255,22 @@ private:
                       KDL::Vector(point.x, point.y, point.z));
   }
 
-  JointAngles frame_to_JointAngles_NRJL(KDL::Frame) {
+  geometry_msgs::msg::Pose frame_to_PoseMsg(const KDL::Frame& frame) {
+    auto pose = geometry_msgs::msg::Pose();
+    pose.position.x = frame.p.x();
+    pose.position.y = frame.p.y();
+    pose.position.z = frame.p.z();
+
+    double qx, qy, qz, qw;
+    frame.M.GetQuaternion(qx, qy, qz, qw);
+    pose.orientation.x = qx;
+    pose.orientation.y = qy;
+    pose.orientation.z = qz;
+    pose.orientation.w = qw;
+    return pose;
+  }
+
+  JointAngles inverse_kinematics(KDL::Frame) {
     JointAngles q;
     return q;
   }
@@ -276,11 +289,27 @@ private:
     if (goal->yaw.size() != goal->time.size()) array_size = false;
 
     if (!array_size) {
-      RCLCPP_WARN(this->get_logger(), "Goal time, x and z arrays have mismatched sizes");
+      RCLCPP_WARN(this->get_logger(), "Goal arrays have mismatched sizes");
       return rclcpp_action::GoalResponse::REJECT;
     }
 
     // check trajectory here
+    auto ee_traj_msg = geometry_msgs::msg::PoseArray();
+    ee_traj_msg.header.stamp = this->get_clock()->now();
+    ee_traj_msg.header.frame_id = "world";
+    std::vector<geometry_msgs::msg::Pose> traj_poses;
+    for (size_t i=0; i < goal->time.size(); ++i) {
+      Point5D point_5D;
+      point_5D.x = goal->x[i]; 
+      point_5D.y = goal->y[i]; 
+      point_5D.z = goal->z[i];
+      point_5D.pitch = goal->pitch[i];
+      point_5D.yaw = goal->yaw[i];
+
+      traj_poses.push_back(frame_to_PoseMsg(point5D_to_Frame(point_5D)));
+    }
+    ee_traj_msg.poses = traj_poses;
+    ee_traj_pub_->publish(ee_traj_msg);
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
 
@@ -319,6 +348,7 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_fixed_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr ee_pose_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr ee_ref_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr ee_traj_pub_;
 
   rclcpp_action::Server<Follow5DOFTrajectory>::SharedPtr follow_5DOF_trajectory_action_server_;
   rclcpp_action::Client<control_msgs::action::FollowJointTrajectory>::SharedPtr joint_trajectory_client_;
