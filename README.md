@@ -33,9 +33,9 @@ Forbal is the series of **For**ce **Bal**anced Manipulators built out of **Fo**u
 ## Assembly Instructions
 ### Forbal2
 Use the Solidworks CAD Assembly as a reference on how to install. A diagram with the parts is shown here. In general, follow this order:
-1. First screw the motor mount connectors together with the motors and bars
-2. Calibrate the motor. To do this, download Dynamixel Wizard 2.0, and connect the motors separately. Turn on Torque enabled, and set the angle to 0 degrees using Goal Position. Leave it on to ensure the motor doesn't slip, and screw the link on at the correct angle where the link's x-faces along the long side of the motor with the positive x-axis towards the shorter end of the joint.
-3. (If F/T sensor) Attach F/T sensor to the wooden base using M3 screws, and the Base to the F/T sensor using the M3 countersink screws
+1. (If F/T sensor) Attach F/T sensor to the wooden base using M3 screws, and the Base to the F/T sensor using the M3 countersink screws
+2. First screw the motor mount connectors together with the motors and bars
+3. Calibrate the motor. To do this, download Dynamixel Wizard 2.0, and connect the motors separately. Turn on Torque enabled, and set the angle to 0 degrees using Goal Position. Leave it on to ensure the motor doesn't slip, and screw the link on at the correct angle where the link's x-faces along the long side of the motor with the positive x-axis towards the shorter end of the joint.
 4. Attach the Motors mounts to the Base, make sure the correct one is in the correct position and orientation.
 5. Then connect Links11 and 21 to the motor joints using the short 2.5mm screws, and also the idler at the back using the longer screws (use nuts to hold the link in place).
 6. Connect Link12 to Link11 using the Teflon bearing and M5 shaft screw connector, held in place with a M6x20mm washer and M5 screw.
@@ -45,7 +45,13 @@ Use the Solidworks CAD Assembly as a reference on how to install. A diagram with
 10. Attach the filleted bars at the counter mass locations for Link11, Link21 and Link22, using the appropriate lengths (shorter one for Link22). Attach the counter masses as specified.
 
 ### Forbal5
-First, you need Forbal2 fully assembled.
+Also follow the CAD assembly as a reference for this design.
+1. Follow Steps 1-3 for Forbal 2
+2. Calibrate the base joint (Joint0) (Dynamixel XM430-W350-T) and attach to the Base using the base joint connectors
+3. Attach the Mount Base to Joint0, make sure it is facing the correct direction.
+4. Attach the Motors mounts to the mount base
+5. Assemble the links (steps 5-6 for Forbal2).
+6. 
 
 ## Installation Instructions
 ### Initial Setup
