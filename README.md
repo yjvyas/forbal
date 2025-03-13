@@ -56,9 +56,21 @@ Also follow the CAD assembly as a reference for this design.
 ## Installation Instructions
 ### Initial Setup
 1. Clean installation of Ubuntu 22 or 24. I recommend a partition, Windows Subsystem for Linux not tested yet.
-2. Install ROS2 [Humble](https://docs.ros.org/en/humble/Installation.html) or [Jazzy](https://docs.ros.org/en/jazzy/Installation.html) following the instructions
+2. Install ROS2 [Humble](https://docs.ros.org/en/humble/Installation.html) or [Jazzy](https://docs.ros.org/en/jazzy/Installation.html) following the instructions. Add this line at the end of your `~/.bashrc` file (using `vim` or any other editor): `source /opt/ros/humble/setup.bash` (replace humble with jazzy if that's your version)
 3. Install ROS2 control for [Humble](https://control.ros.org/humble/doc/getting_started/getting_started.html) or [Jazzy](https://control.ros.org/jazzy/doc/getting_started/getting_started.html)
-4. Install the dynamixel hardware plugin using following the instructions for the branch corresponding to your ROS installation ([Humble](https://github.com/dynamixel-community/dynamixel_hardware/tree/humble) or [Jazzy](https://github.com/dynamixel-community/dynamixel_hardware/tree/jazzy)) **Note**: you can also install this in your local workspace (in the next set of instructions) by cloning to the `~/forbal_ws/src/` directory
+4. Install the [dynamixel hardware](https://github.com/dynamixel-community/dynamixel_hardware) plugin using following the instructions for the branch corresponding to your ROS installation. First, follow the link and switch branch to 'humble' or 'jazzy'. Use these commands:
+```
+mkdir -p ~/ros/${ROS_DISTRO} && cd ~/ros/${ROS_DISTRO}/src
+git clone https://github.com/youtalk/dynamixel_hardware.git
+git clone https://github.com/youtalk/dynamixel_hardware.git
+cd ~/ros/${ROS_DISTRO}/src/dynamixel_hardware
+git checkout --track origin/${ROS_DISTRO}
+cd ~/ros/${ROS_DISTRO}/src/
+sudo rosdep init
+rosdep update
+colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+. install/setup.bash
+```
 
 ### Workspace Setup
 1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so
