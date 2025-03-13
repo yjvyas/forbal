@@ -82,7 +82,11 @@ colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 mkdir -p ~/forbal_ws/src/forbal
 cd ~/forbal_ws/src
 ```
-2. Clone this repository `git@github.com:yjvyas/forbal.git`
+2. Clone this repository
+```
+cd ~/forbal_ws/src/
+git clone git@github.com:yjvyas/forbal.git
+```
 3. Build
 ```
 cd ~/forbal_ws
