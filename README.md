@@ -58,21 +58,24 @@ Also follow the CAD assembly as a reference for this design.
 1. Clean installation of Ubuntu 22 or 24. I recommend a partition, Windows Subsystem for Linux not tested yet.
 2. Install ROS2 [Humble](https://docs.ros.org/en/humble/Installation.html) or [Jazzy](https://docs.ros.org/en/jazzy/Installation.html) following the instructions. Add this line at the end of your `~/.bashrc` file (using `vim` or any other editor): `source /opt/ros/humble/setup.bash` (replace humble with jazzy if that's your version)
 3. Install ROS2 control for [Humble](https://control.ros.org/humble/doc/getting_started/getting_started.html) or [Jazzy](https://control.ros.org/jazzy/doc/getting_started/getting_started.html)
-4. Install the [dynamixel hardware](https://github.com/dynamixel-community/dynamixel_hardware) plugin using following the instructions for the branch corresponding to your ROS installation. First, follow the link and switch branch to 'humble' or 'jazzy'. Use these commands:
+4. Install xacro `sudo apt install ros-${ROS_DISTRO}-xacro`
+5. Workspace Setup:
+  4.1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so.
+  4.2. Create a new workspace in your home directory:
+  ```
+mkdir -p ~/forbal_ws/src/forbal
+cd ~/forbal_ws/src
 ```
-mkdir -p ~/ros/${ROS_DISTRO} && cd ~/ros/${ROS_DISTRO}/src
+6. Install the Dynamixel drivers in this workspace:
+```
+git clone -b ${ROS_DISTRO} https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+git clone -b ${ROS_DISTRO} https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
 git clone https://github.com/youtalk/dynamixel_hardware.git
-git clone https://github.com/youtalk/dynamixel_hardware.git
-cd ~/ros/${ROS_DISTRO}/src/dynamixel_hardware
-git checkout --track origin/${ROS_DISTRO}
-cd ~/ros/${ROS_DISTRO}/src/
-sudo rosdep init
-rosdep update
+cd ~/forbal_ws/
 colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-. install/setup.bash
 ```
 
-### Workspace Setup
+### Forbal Setup
 1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so
 2. Create a new workspace in your home directory:
   ```
@@ -86,4 +89,9 @@ cd ~/forbal_ws
 colcon build --symlink-install
 ```
 All the packages should build successfully, if not, one of your earlier dependencies didn't build properly.
+
+### Optional Tools
+```
+sudo apt install python3-colcon-clean
+```
 
