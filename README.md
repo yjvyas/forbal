@@ -79,11 +79,6 @@ colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 ### Forbal Setup
 1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so
-2. Create a new workspace in your home directory:
-  ```
-mkdir -p ~/forbal_ws/src/forbal
-cd ~/forbal_ws/src
-```
 2. Clone this repository
 ```
 cd ~/forbal_ws/src/
