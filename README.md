@@ -60,12 +60,12 @@ Also follow the CAD assembly as a reference for this design.
 3. Install ROS2 control for [Humble](https://control.ros.org/humble/doc/getting_started/getting_started.html) or [Jazzy](https://control.ros.org/jazzy/doc/getting_started/getting_started.html)
 4. Install xacro `sudo apt install ros-${ROS_DISTRO}-xacro`
 5. Workspace Setup:
-  4.1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so.
-  4.2. Create a new workspace in your home directory:
+  5.1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so.
+  5.2. Create a new workspace in your home directory:
   ```
-mkdir -p ~/forbal_ws/src/forbal
-cd ~/forbal_ws/src
-```
+  mkdir -p ~/forbal_ws/src/forbal
+  cd ~/forbal_ws/src
+  ```
 6. Install the Dynamixel drivers in this workspace:
 ```
 git clone -b ${ROS_DISTRO} https://github.com/ROBOTIS-GIT/DynamixelSDK.git
@@ -94,8 +94,47 @@ colcon build --symlink-install
 ```
 All the packages should build successfully, if not, one of your earlier dependencies didn't build properly.
 
-### Optional Tools
+### Recommended Tools
+- [Plotjuggler](https://github.com/facontidavide/PlotJuggler)  `sudo apt install ros-$ROS_DISTRO-plotjuggler-ros`
+- Colcon clean workspace `sudo apt install python3-colcon-clean` you can clean workspaces with the command `colcon clean workspace -a` which removes all the `build/` `log/` and `install/` folders.
+- Terminator (install from Apps utility) - super useful for multiple terminals in one window
+
+## Running the code
+#### Forbal2
+1. First, traverse to the workspace folder: `cd ~/forbal_ws/` (remember, `tab` is your friend :-) )
+2. Source the workspace `source ./install/setup.bash`
+3. Launch the controllers, two options available:
+  3.1. If you have the actual hardware, connect it in the USB port (BEFORE the F/T sensor, so that it is connected as `/dev/ttyUSB0`). Then use the launch file `ros2 launch forbal_controllers forbal2.launch.py`.
+  3.2. If you only want to run it in simulation mode, run `ros2 launch forbal_controllers forbal2.launch.py sim:=true`. Note that you will not have a valid pose until you send a trajectory reference.
+4. In another terminal (remember to `cd ~/forbal_ws/` and `source ./install/setup.bash` first!), you can send two types of position trajectory commands. These are in the `~/forbal_ws/src/forbal/forbal_controllers/scripts` folder, and you should copy paste them:
+  4.1. To send to joint-space interpolation only, publish to the topic `/position_trajectory`:
+   ```
+ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory "{ 
+  header: { 
+    stamp: { sec: 0, nanosec: 0 }, 
+    frame_id: 'world' 
+  },
+  x: [0.22],
+  y: [0.0],
+  z: [0.22],
+  time: [1.0]
+}"
 ```
-sudo apt install python3-colcon-clean
+  4.2. To send position interpolated splines, use the action `.follow_position_trajectory`, the trajectories are in the txt files. For example:
 ```
+## trajectory 1: diamond (position space)
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.22, 0.32, 0.42, 0.32, 0.22], 
+   y: [], 
+   z: [0.22, 0.32, 0.22, 0.12, 0.22], 
+   time: [0.0, 1.0, 2.0, 3.0, 4.0], 
+   acc_time: 1.0
+}"
+```
+6. (If F/T sensor) in another terminal run the sensor driver `ros2 launch rft_sensor_serial rft_sensor_launch.py`
+7. To visualize, use plotjuggler `ros2 run plotjuggler plotjuggler` and load the config file in `src/forbal/forbal_description/launch/pj_viz.xml`.
+
+
 
