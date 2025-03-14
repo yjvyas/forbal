@@ -65,7 +65,7 @@ Also follow the CAD assembly as a reference for this design.
   5.1. Set up [ssh keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for your github account if you haven't done so.
   5.2. Create a new workspace in your home directory:
   ```
-  mkdir -p ~/forbal_ws/src/forbal
+  mkdir -p ~/forbal_ws/src
   cd ~/forbal_ws/src
   ```
 6. Install the Dynamixel drivers in this workspace:
