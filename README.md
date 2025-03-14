@@ -122,7 +122,6 @@ ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory 
 ```
   4.2. To send position interpolated splines, use the action `.follow_position_trajectory`, the trajectories are in the txt files. For example:
 ```
-## trajectory 1: diamond (position space)
 ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
    type: 'constant_waypoints', 
    dt: 0.01, 
