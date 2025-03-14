@@ -48,10 +48,12 @@ Use the Solidworks CAD Assembly as a reference on how to install. A diagram with
 Also follow the CAD assembly as a reference for this design.
 1. Follow Steps 1-3 for Forbal 2
 2. Calibrate the base joint (Joint0) (Dynamixel XM430-W350-T) and attach to the Base using the base joint connectors
-3. Attach the Mount Base to Joint0, make sure it is facing the correct direction.
-4. Attach the Motors mounts to the mount base
+3. Attach the Mount Base to Joint0, make sure it is calibrated before attachment.
+4. Attach the Motors mounts to the mount base.
 5. Assemble the links (steps 5-6 for Forbal2).
-6. 
+6. Attach the motor to the end-effector (calibrate both first!).
+7. Attach the End-effector implement to the second motor.
+8. Close the loop of the linkages with the Teflon bearing + M6x20mm washer + M5 nut.
 
 ## Installation Instructions
 ### Initial Setup
