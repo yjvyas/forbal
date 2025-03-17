@@ -103,7 +103,7 @@ All the packages should build successfully, if not, one of your earlier dependen
 3. Launch the controllers, two options available:
   3.1. If you have the actual hardware, connect it in the USB port (BEFORE the F/T sensor, so that it is connected as `/dev/ttyUSB0`). Then use the launch file `ros2 launch forbal_controllers forbal2.launch.py`.
   3.2. If you only want to run it in simulation mode, run `ros2 launch forbal_controllers forbal2.launch.py sim:=true`. Note that you will not have a valid pose until you send a trajectory reference.
-4. In another terminal (remember to `cd ~/forbal_ws/` and `source ./install/setup.bash` first!), you can send two types of position trajectory commands. These are in the `~/forbal_ws/src/forbal/forbal_controllers/scripts` folder, and you should copy paste them:
+4. In another terminal (remember to `cd ~/forbal_ws/` and `source ./install/setup.bash` first!), you can send two types of position trajectory commands. These are in the `~/forbal_ws/src/forbal/forbal_controllers/scripts` folder, and you should copy paste them.
   4.1. To send to joint-space interpolation only, publish to the topic `/position_trajectory`:
 ```
 ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory "{ 
@@ -129,8 +129,8 @@ ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/Follo
    acc_time: 1.0
 }"
 ```
-6. (If F/T sensor) Connect the sensor in the adjacent USB port (it should be `/dev/ttyUSB1`) in another terminal run the sensor driver `ros2 launch rft_sensor_serial rft_sensor_launch.py`.
-7. To visualize, use plotjuggler `ros2 run plotjuggler plotjuggler` and load the config file in `src/forbal/forbal_description/launch/pj_viz.xml`.
+5. (If F/T sensor) Connect the sensor in the adjacent USB port (it should be `/dev/ttyUSB1`) in another terminal run the sensor driver `ros2 launch rft_sensor_serial rft_sensor_launch.py`.
+6. To visualize, use plotjuggler `ros2 run plotjuggler plotjuggler` and load the config file in `src/forbal/forbal_description/launch/pj_viz.xml`.
 
 
 
