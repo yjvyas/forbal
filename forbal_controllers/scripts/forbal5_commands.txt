@@ -10,6 +10,7 @@ ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory contr
   }
 }"
 
+
 ## position trajectory
 ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DOFTrajectory "{
    type: 'trapezoidal_waypoints', 
