@@ -10,6 +10,7 @@
 #include <vector>
 #include <cmath>
 #include <math.h>
+// #include "spline.h"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include <geometry_msgs/msg/point_stamped.hpp>
@@ -146,6 +147,22 @@ private:
     } else {
       RCLCPP_ERROR(this->get_logger(),"Unable to parse robot description!");
     }
+
+    try {
+      KDL::Frame T_O_j21 = computeRelativeTransform(tree_, "world", "link21");
+      KDL::Frame T_j11_jee = computeRelativeTransform(tree_, "link21", "ee");
+      T_ee_j3 = computeRelativeTransform(tree_, "ee", "ee_motor");
+      T_j3_j4 = computeRelativeTransform(tree_, "ee_motor", "ee_imp");
+      RCLCPP_INFO(this->get_logger(),"T_ee_j3: %f, %f, %f",T_ee_j3.p.x(), T_ee_j3.p.y(), T_ee_j3.p.z());
+      RCLCPP_INFO(this->get_logger(),"T_j3_j4: %f, %f, %f",T_j3_j4.p.x(), T_j3_j4.p.y(), T_j3_j4.p.z());
+      l_ = T_j11_jee.p.x(); // length of the span of the manipulator up to end effector
+      h_ = T_O_j21.p.z(); // sets height of the joint base
+      x_off_ = T_O_j21.p.x(); // x offset of the joint base
+      RCLCPP_INFO(this->get_logger(),"Manipulator span: %f, height: %f", l_, h_);
+  } catch (const std::exception& ex) {
+      RCLCPP_ERROR(this->get_logger(), "Transform computation error: %s", ex.what());
+  }
+  
   }
 
   void joint_state_callback_(const sensor_msgs::msg::JointState::SharedPtr msg) {
@@ -251,8 +268,12 @@ private:
   }
 
   KDL::Frame point5D_to_Frame(const Point5D& point) {
-    return KDL::Frame(KDL::Rotation::RotY(point.pitch)*KDL::Rotation::RotZ(point.yaw),
-                      KDL::Vector(point.x, point.y, point.z));
+  // Converts a Point5D to a KDL::Frame
+  // find the position of the end-effector in the world frame and it's yaw
+  float ei_angle = atan2(point.y,point.x);
+
+  return KDL::Frame(KDL::Rotation::RotZ(ei_angle)*KDL::Rotation::RotY(point.pitch)*KDL::Rotation::RotZ(point.yaw-ei_angle),
+    KDL::Vector(point.x, point.y, point.z));
   }
 
   geometry_msgs::msg::Pose frame_to_PoseMsg(const KDL::Frame& frame) {
@@ -270,9 +291,71 @@ private:
     return pose;
   }
 
-  JointAngles inverse_kinematics(KDL::Frame) {
-    JointAngles q;
-    return q;
+  bool inverse_kinematics(const Point5D& point, JointAngles& q) {
+    // Computes the inverse kinematics for the end-effector position and orientation
+    // returns true if an IK solution exists, false otherwise.
+    float ei_angle = atan2(point.y,point.x);
+    RCLCPP_INFO(this->get_logger(), "End-effector angle: %f", ei_angle);
+
+    KDL::Frame T_ei(KDL::Rotation::RotZ(ei_angle),
+                    KDL::Vector(point.x, point.y, point.z));
+    RCLCPP_INFO(this->get_logger(), "End-effector position: [%f, %f, %f]", T_ei.p.x(), T_ei.p.y(), T_ei.p.z());
+
+    KDL::Frame T_ei_proj = KDL::Frame(KDL::Rotation::RotZ(-ei_angle))*T_ei; // projected in the plane
+    RCLCPP_INFO(this->get_logger(), "proj ei position: [%f, %f, %f]",T_ei_proj.p.x(), T_ei_proj.p.y(), T_ei_proj.p.z());
+
+    KDL::Frame T_j3_j4_inv = KDL::Frame(KDL::Rotation::RotY(point.pitch),KDL::Vector(-T_j3_j4.p.y(),0.0,T_j3_j4.p.x())).Inverse();
+    KDL::Frame T_em_proj = T_ei_proj * T_j3_j4_inv; // end-effector mount position in the projected frame
+    RCLCPP_INFO(this->get_logger(), "proj em position: [%f, %f, %f]", T_em_proj.p.x(), T_em_proj.p.y(), T_em_proj.p.z());
+    KDL::Vector pd = KDL::Vector(T_em_proj.p.x()-x_off_,T_em_proj.p.y(), T_em_proj.p.z()-h_); // desired ee position from the height location
+    RCLCPP_INFO(this->get_logger(), "proj em position relative to height: [%f, %f, %f]", pd.x(), pd.y(), pd.z());
+
+    q._0 = ei_angle; // angle of the joint 0 to hit the required angle
+    RCLCPP_INFO(this->get_logger(), "joint 0 angle: %f", q._0);
+    float d_ee = pd.Norm();
+    float le = T_ee_j3.p.x(); // length of the end-effector mount to ee motor
+    RCLCPP_INFO(this->get_logger(), "distance = %f", d_ee);
+    float l = l_/2;
+    if (d_ee < l_+le) {
+      double thetaE0 = atan(pd.z()/pd.x());
+      double lE0 = sqrt(pow(pd.x(),2)+pow(pd.z(),2)); // distance from the base to the end-effector in the projected plane
+      double beta = acos((pow(l,2)+pow(l+le,2)-pow(lE0,2))/(2*l*(l+le)));
+      double gamma = acos((pow(lE0,2)+pow(l,2)-pow(l+le,2))/(2*l*lE0));
+      double alpha = M_PI-beta;
+
+      q._21 = gamma+thetaE0;
+      q._11 = alpha-q._21;
+      q._12 = M_PI-beta;
+      q._22 = M_PI-beta;
+      q._3 = q._22-q._21+point.pitch; // pitch relative to the end-effector
+      q._4 = -q._0+point.yaw;
+
+      RCLCPP_INFO(this->get_logger(), "Joint angles: q0 = %f, q11 = %f, q12 = %f, q21 = %f, q22 = %f, q3 = %f, q4 = %f", q._0, q._11, q._12, q._21, q._22, q._3, q._4);
+    } else {
+      RCLCPP_ERROR(this->get_logger(), "End-effector mount position is %f m, too far from the base, no IK solution exists.", d_ee);
+      return false;
+    }
+    return true;
+  }
+
+  // Utility function
+  KDL::Frame computeRelativeTransform(const KDL::Tree& tree, const std::string& from, const std::string& to) {
+    KDL::Chain chain;
+    if (!tree.getChain(from, to, chain)) {
+        throw std::runtime_error("Failed to extract chain from " + from + " to " + to);
+    }
+
+    KDL::JntArray joint_positions(chain.getNrOfJoints());
+    SetToZero(joint_positions);
+
+    KDL::ChainFkSolverPos_recursive fk_solver(chain);
+    KDL::Frame transform;
+
+    if (fk_solver.JntToCart(joint_positions, transform) < 0) {
+      throw std::runtime_error("Failed to compute FK from " + from + " to " + to);
+    }
+
+    return transform;
   }
 
   rclcpp_action::GoalResponse handle_goal(
@@ -306,7 +389,13 @@ private:
       point_5D.pitch = goal->pitch[i];
       point_5D.yaw = goal->yaw[i];
 
-      traj_poses.push_back(frame_to_PoseMsg(point5D_to_Frame(point_5D)));
+      JointAngles q;
+      if (!inverse_kinematics(point_5D, q)) {
+        RCLCPP_ERROR(this->get_logger(), "Inverse kinematics failed for point %zu", i);
+        return rclcpp_action::GoalResponse::REJECT;
+      } else {
+        traj_poses.push_back(frame_to_PoseMsg(point5D_to_Frame(point_5D)));
+      }
     }
     ee_traj_msg.poses = traj_poses;
     ee_traj_pub_->publish(ee_traj_msg);
@@ -325,12 +414,115 @@ private:
 
   void execute(const std::shared_ptr<GoalHandleFollow5DOFTrajectory> goal_handle) {
     auto goal = goal_handle->get_goal();
-    // auto trajectory_goal = control_msgs::action::FollowJointTrajectory::Goal();
-    // trajectory_goal.trajectory.joint_names = {"joint0", "joint11","joint21","joint3","joint4"};
-    
-    auto result = std::make_shared<Follow5DOFTrajectory::Result>();
-    result->error_code = result->SUCCESSFUL;
-    goal_handle->succeed(result);
+
+    // tk::spline sx(goal->time, goal->x,
+    //               tk::spline::cspline_hermite, false,
+    //               tk::spline::first_deriv, 0.0,
+    //               tk::spline::first_deriv, 0.0);
+
+    // tk::spline sy(goal->time, goal->y,
+    //               tk::spline::cspline_hermite, false,
+    //               tk::spline::first_deriv, 0.0,
+    //               tk::spline::first_deriv, 0.0);
+
+    // tk::spline sz(goal->time, goal->z,  
+    //               tk::spline::cspline_hermite, false,
+    //               tk::spline::first_deriv, 0.0,
+    //               tk::spline::first_deriv, 0.0);
+
+    // tk::spline spitch(goal->time, goal->pitch,
+    //                   tk::spline::cspline_hermite, false,
+    //                   tk::spline::first_deriv, 0.0,
+    //                   tk::spline::first_deriv, 0.0);
+
+    // tk::spline syaw(goal->time, goal->yaw,
+    //                   tk::spline::cspline_hermite, false,
+    //                   tk::spline::first_deriv, 0.0,
+    //                   tk::spline::first_deriv, 0.0);
+
+    // float dt;
+    // if (goal->dt <= 0.0f) {
+    //   RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: dt not specified or incorrent, setting to 0.01");
+    //   dt = 0.01;
+    // } else {
+    //   dt = goal->dt;
+    // }
+    double tMax = *std::max_element(goal->time.begin(),goal->time.end());
+
+    auto trajectory_goal = control_msgs::action::FollowJointTrajectory::Goal();
+    trajectory_goal.trajectory.joint_names = {"joint0", "joint11","joint21","joint3","joint4"};
+
+    JointAngles q;
+    Point5D p;
+
+    if (goal->type == "joint_trajectory") {
+      for (size_t i = 0; i < goal->time.size(); ++i) {
+        p.x = goal->x[i];
+        p.y = goal->y[i];
+        p.z = goal->z[i];
+        p.pitch = goal->pitch[i];
+        p.yaw = goal->yaw[i];
+
+        if (inverse_kinematics(p, q)) {
+          trajectory_goal.trajectory.points.push_back(trajectory_msgs::msg::JointTrajectoryPoint());
+          trajectory_goal.trajectory.points.back().positions = {q._0, q._11, q._21, q._3, q._4};
+          trajectory_goal.trajectory.points.back().time_from_start = rclcpp::Duration::from_seconds(goal->time[i]);
+        };
+      }
+    } else {
+      RCLCPP_ERROR(this->get_logger(), "Unsupported trajectory type: %s", goal->type.c_str());
+      auto result = std::make_shared<Follow5DOFTrajectory::Result>();
+      result->error_code = result->INVALID_GOAL;
+      result->error_string = "Unsupported trajectory type";
+      goal_handle->abort(result);
+      return;
+    }
+
+    if (!joint_trajectory_client_->wait_for_action_server(std::chrono::seconds(10))) {
+      RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory action server not available");
+      auto result = std::make_shared<Follow5DOFTrajectory::Result>();
+      result->error_code = result->JOINT_TRAJECTORY_ERROR;
+      result->error_string = "Action server not available";
+      goal_handle->abort(result);
+      return;
+    }
+
+
+    auto send_goal_options = rclcpp_action::Client<control_msgs::action::FollowJointTrajectory>::SendGoalOptions();
+
+    auto time_start = this->now();
+    send_goal_options.feedback_callback = [goal_handle, this, tMax, time_start](auto, auto feedback) {
+      auto fb = std::make_shared<Follow5DOFTrajectory::Feedback>();
+      fb->header = feedback->header;
+      fb->position_error = 0.0;
+      goal_handle->publish_feedback(fb);
+    };
+
+    auto future = joint_trajectory_client_->async_send_goal(trajectory_goal, send_goal_options);
+    auto traj_goal_handle = future.get();
+    if (!traj_goal_handle) {
+      RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory goal was rejected");
+      auto result = std::make_shared<Follow5DOFTrajectory::Result>();
+      result->error_code = result->JOINT_TRAJECTORY_ERROR;
+      result->error_string = "Goal rejected by server";
+      goal_handle->abort(result);
+      return;
+    }
+
+    auto result_future = joint_trajectory_client_->async_get_result(future.get());
+
+    if (result_future.get().code != rclcpp_action::ResultCode::SUCCEEDED) {
+      RCLCPP_ERROR(this->get_logger(), "Trajectory execution failed");
+      auto result = std::make_shared<Follow5DOFTrajectory::Result>();
+      result->error_code = result->JOINT_TRAJECTORY_ERROR;
+      result->error_string = "Trajectory failed.";
+      goal_handle->abort(std::make_shared<Follow5DOFTrajectory::Result>());
+    } else {
+      RCLCPP_INFO(this->get_logger(), "Trajectory execution succeeded");
+      auto result = std::make_shared<Follow5DOFTrajectory::Result>();
+      result->error_code = result->SUCCESSFUL;
+      goal_handle->succeed(result);
+    }
   }
 
   KDL::Tree tree_;
@@ -341,7 +533,12 @@ private:
   std::unique_ptr<KDL::ChainFkSolverPos_recursive> solver_ee_pos_;
   std::unique_ptr<KDL::ChainFkSolverPos_recursive> solver_eemkr_pos_;
 
-  float l_;
+  float l_; // length of the link
+  float x_off_; // offset of the base in the x direction
+  float h_; // height of the manipulator joints 11 and 21
+  float span_;
+  KDL::Frame T_j3_j4; // transform from joint 3 to joint 4
+  KDL::Frame T_ee_j3; // transform from end-effector to joint 3
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr robot_description_sub_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
   rclcpp::Subscription<control_msgs::msg::JointTrajectoryControllerState>::SharedPtr joint_controller_sub_;

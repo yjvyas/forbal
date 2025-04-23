@@ -364,11 +364,11 @@ void Forbal2Controller::execute(const std::shared_ptr<GoalHandleFollowPositionTr
 
   marker_pub_->publish(marker);
 
-  if (!joint_trajectory_client_->wait_for_action_server(std::chrono::seconds(5))) {
-      RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory action server unavailable");
-      goal_handle->abort(std::make_shared<FollowPositionTrajectory::Result>());
-      return;
-  }
+  // if (!joint_trajectory_client_->wait_for_action_server(std::chrono::seconds(5))) {
+  //     RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory action server unavailable");
+  //     goal_handle->abort(std::make_shared<FollowPositionTrajectory::Result>());
+  //     return;
+  // }
 
   if (!joint_trajectory_client_->wait_for_action_server(std::chrono::seconds(10))) {
     RCLCPP_ERROR(this->get_logger(), "FollowJointTrajectory action server not available");

@@ -153,21 +153,9 @@
     <joint name="joint_ee_mkr" type="fixed">
         <parent link="ee"/>
         <child link="ee_mkr"/>
-        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.02500000 0.00000000 0.00000000"/>
+        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.000000 0.00000000 0.00000000"/>
         <axis xyz="100"/>
     </joint>
-    <!-- <joint name="joint_lc1_l12" type="fixed">
-        <parent link="link12"/>
-        <child link="lc1"/>
-        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 0.04520000 0.00000000"/>
-        <axis xyz="100"/>
-    </joint>
-    <joint name="joint_lc_l22" type="fixed">
-        <parent link="link22"/>
-        <child link="lc2"/>
-        <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 -0.04100000  0.00000000"/>
-        <axis xyz="100"/>
-    </joint> -->
 </xacro:macro>
 
 <xacro:macro name="ringmass" params="parent mass density radius_inner radius_outer *origin ">
