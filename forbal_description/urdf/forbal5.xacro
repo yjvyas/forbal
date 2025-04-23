@@ -185,28 +185,28 @@
         <child link="link11"/>
         <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 -0.04310000  0.22750000"/>
         <axis xyz="0.00000000 1.00000000 0.00000000"/>
-        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+        <limit lower="-1.25" upper="1.45" effort="30.0" velocity="0"/>
     </joint>
     <joint name="joint12" type="revolute">
         <parent link="link11"/>
         <child link="link12"/>
         <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 0.00000000 0.00000000"/>
         <axis xyz="0.00000000 -1.00000000  0.00000000"/>
-        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+        <limit lower="-2.9" upper="2.9" effort="30.0" velocity="0"/>
     </joint>
     <joint name="joint21" type="revolute">
         <parent link="mount"/>
         <child link="link21"/>
         <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 0.04310000 0.22750000"/>
         <axis xyz="0.00000000 -1.00000000  0.00000000"/>
-        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+        <limit lower="-1.5" upper="1.25" effort="30.0" velocity="0"/>
     </joint>
     <joint name="joint22" type="revolute">
         <parent link="link21"/>
         <child link="link22"/>
         <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.20000000 0.00000000 0.00000000"/>
         <axis xyz="0.00000000 1.00000000 0.00000000"/>
-        <limit lower="-3.14159265" upper="3.14159265" effort="0" velocity="0"/>
+        <limit lower="0.3" upper="2.9" effort="30.0" velocity="0"/>
     </joint>
     <joint name="joint_lc1_l12" type="fixed">
         <parent link="link12"/>

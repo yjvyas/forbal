@@ -13,6 +13,7 @@
 // #include "spline.h"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
+#include <map>
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -32,6 +33,7 @@
 #include "kdl/jntarray.hpp"
 #include "kdl/chainiksolverpos_lma.hpp"
 #include "kdl_parser/kdl_parser.hpp"
+#include <urdf/model.h>
 
 class Forbal5Controller : public rclcpp::Node {
 public:
@@ -91,6 +93,8 @@ public:
       this,
       "/joint_trajectory_controller/follow_joint_trajectory"
     );
+
+    joint_names_ = {"joint0", "joint11", "joint12", "joint21", "joint22", "joint3", "joint4"};
 
     RCLCPP_INFO(this->get_logger(), "Initialised Forbal5Controller.");
   }
@@ -163,6 +167,26 @@ private:
       RCLCPP_ERROR(this->get_logger(), "Transform computation error: %s", ex.what());
   }
   
+  urdf::Model urdf_model;
+  if (!urdf_model.initString(msg.data)) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to parse URDF model. All joint limits will be set to bounds.");
+    for (const std::string& name : joint_names_) {
+      joint_limits_[name] = { -M_PI, M_PI }; // Default limits if URDF parsing fails
+      }
+  } else {
+  //   // Set joint limits based on URDF
+    for (const std::string& name : joint_names_) {
+      urdf::JointConstSharedPtr joint = urdf_model.getJoint(name);
+      if (!joint) {
+        RCLCPP_WARN(this->get_logger(), "Joint %s not found in URDF", name.c_str());
+        joint_limits_[name] = { -M_PI, M_PI }; // Default limits if URDF parsing fails
+        continue;
+      } else {
+        joint_limits_[name] = {joint->limits->lower, joint->limits->upper};
+      }
+    }
+  
+    }
   }
 
   void joint_state_callback_(const sensor_msgs::msg::JointState::SharedPtr msg) {
@@ -291,6 +315,40 @@ private:
     return pose;
   }
 
+  bool check_joint_limits(JointAngles& q) {
+    // Checks if the joint angles are within the limits
+    bool limits = true;
+    if (q._0 < joint_limits_["joint0"].first || q._0 > joint_limits_["joint0"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 0 angle %f out of limits [%f, %f]", q._0, joint_limits_["joint0"].first, joint_limits_["joint0"].second);
+      limits = false;
+    }
+    if (q._11 < joint_limits_["joint11"].first || q._11 > joint_limits_["joint11"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 11 angle %f out of limits [%f, %f]", q._11, joint_limits_["joint11"].first, joint_limits_["joint11"].second);
+      limits = false;
+    }
+    if (q._12 < joint_limits_["joint12"].first || q._12 > joint_limits_["joint12"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 12 angle %f out of limits [%f, %f]", q._12, joint_limits_["joint12"].first, joint_limits_["joint12"].second);
+      limits = false;
+    }
+    if (q._21 < joint_limits_["joint21"].first || q._21 > joint_limits_["joint21"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 21 angle %f out of limits [%f, %f]", q._21, joint_limits_["joint21"].first, joint_limits_["joint21"].second);
+      limits = false;
+    }
+    if (q._22 < joint_limits_["joint22"].first || q._22 > joint_limits_["joint22"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 22 angle %f out of limits [%f, %f]", q._22, joint_limits_["joint22"].first, joint_limits_["joint22"].second);
+      limits = false;
+    }
+    if (q._3 < joint_limits_["joint3"].first || q._3 > joint_limits_["joint3"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 3 angle %f out of limits [%f, %f]", q._3, joint_limits_["joint3"].first, joint_limits_["joint3"].second);
+      limits = false;
+    }
+    if (q._4 < joint_limits_["joint4"].first || q._4 > joint_limits_["joint4"].second) {
+      RCLCPP_ERROR(this->get_logger(), "Joint 4 angle %f out of limits [%f, %f]", q._4, joint_limits_["joint4"].first, joint_limits_["joint4"].second);
+      limits = false;
+    }
+    return limits;
+  }
+
   bool inverse_kinematics(const Point5D& point, JointAngles& q) {
     // Computes the inverse kinematics for the end-effector position and orientation
     // returns true if an IK solution exists, false otherwise.
@@ -327,14 +385,19 @@ private:
       q._11 = alpha-q._21;
       q._12 = M_PI-beta;
       q._22 = M_PI-beta;
-      q._3 = q._22-q._21+point.pitch; // pitch relative to the end-effector
+      q._3 = q._22-q._21-point.pitch; // pitch relative to the end-effector
       q._4 = -q._0+point.yaw;
 
       RCLCPP_INFO(this->get_logger(), "Joint angles: q0 = %f, q11 = %f, q12 = %f, q21 = %f, q22 = %f, q3 = %f, q4 = %f", q._0, q._11, q._12, q._21, q._22, q._3, q._4);
+      if (!check_joint_limits(q)) {
+        RCLCPP_ERROR(this->get_logger(), "Joint angles out of limits, no IK solution exists.");
+        return false;
+      }
     } else {
       RCLCPP_ERROR(this->get_logger(), "End-effector mount position is %f m, too far from the base, no IK solution exists.", d_ee);
       return false;
     }
+
     return true;
   }
 
@@ -539,6 +602,9 @@ private:
   float span_;
   KDL::Frame T_j3_j4; // transform from joint 3 to joint 4
   KDL::Frame T_ee_j3; // transform from end-effector to joint 3
+  std::vector<std::string> joint_names_;
+  std::map<std::string, std::pair<float, float>> joint_limits_;
+
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr robot_description_sub_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
   rclcpp::Subscription<control_msgs::msg::JointTrajectoryControllerState>::SharedPtr joint_controller_sub_;

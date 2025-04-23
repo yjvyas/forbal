@@ -64,6 +64,7 @@ visualization_msgs
 forbal_interfaces
 orocos_kdl_vendor
 kdl_parser
+urdf
 )
 
 install(TARGETS 
