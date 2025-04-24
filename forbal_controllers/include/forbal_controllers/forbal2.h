@@ -22,6 +22,7 @@
 #include "forbal_interfaces/msg/position_trajectory.hpp"
 #include "forbal_interfaces/action/follow_position_trajectory.hpp"
 #include "control_msgs/action/follow_joint_trajectory.hpp"
+#include "control_msgs/msg/joint_trajectory_controller_state.hpp"
 #include "spline.h"
 
 class Forbal2Controller : public rclcpp::Node {
@@ -48,15 +49,18 @@ private:
     rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr point_sub_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub_;
     rclcpp::Subscription<forbal_interfaces::msg::PositionTrajectory>::SharedPtr position_traj_sub_;
+    rclcpp::Subscription<control_msgs::msg::JointTrajectoryControllerState>::SharedPtr joint_controller_sub_;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_fixed_pub_;
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr joint_trajectory_pub_;
     rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;
-    rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr ee_position_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr ee_pos_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr ee_ref_pub_;
     rclcpp_action::Server<FollowPositionTrajectory>::SharedPtr position_trajectory_action_server_;
     rclcpp_action::Client<control_msgs::action::FollowJointTrajectory>::SharedPtr joint_trajectory_client_;
 
     void point_callback_(const geometry_msgs::msg::PointStamped::SharedPtr msg);
     void position_traj_callback_(const forbal_interfaces::msg::PositionTrajectory::SharedPtr msg);
+    void joint_controller_callback_(const control_msgs::msg::JointTrajectoryControllerState::SharedPtr msg);
     void joint_state_callback_(const sensor_msgs::msg::JointState::SharedPtr msg);
     rclcpp_action::GoalResponse handle_goal(
         const rclcpp_action::GoalUUID & uuid, 

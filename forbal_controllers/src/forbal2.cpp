@@ -79,6 +79,12 @@ Forbal2Controller::Forbal2Controller() : Node("forbal2_controller") {
     std::bind(&Forbal2Controller::joint_state_callback_, this, std::placeholders::_1)
   );
 
+  joint_controller_sub_ = this->create_subscription<control_msgs::msg::JointTrajectoryControllerState>(
+    "/joint_trajectory_controller/controller_state",
+    10,
+    std::bind(&Forbal2Controller::joint_controller_callback_, this, std::placeholders::_1)
+  );
+
   joint_states_fixed_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "joint_states_fixed",
     10
@@ -89,8 +95,13 @@ Forbal2Controller::Forbal2Controller() : Node("forbal2_controller") {
     10
   );
 
-  ee_position_pub_ = this->create_publisher<geometry_msgs::msg::PointStamped>(
-    "position_trajectory/ee_position",
+  ee_pos_pub_ = this->create_publisher<geometry_msgs::msg::PointStamped>(
+    "ee_pos",
+    10
+  );
+
+  ee_ref_pub_ = this->create_publisher<geometry_msgs::msg::PointStamped>(
+    "ee_ref",
     10
   );
 
@@ -192,20 +203,52 @@ void Forbal2Controller::joint_state_callback_(const sensor_msgs::msg::JointState
 
     auto msg_new = sensor_msgs::msg::JointState();
     msg_new.header.stamp = this->get_clock()->now();
+    msg_new.header.frame_id = "world";
     msg_new.name = {joint_1_act_,joint_1_psv_,joint_2_act_,joint_2_psv_};
     msg_new.position = {ja.theta1a, ja.theta1p, ja.theta2a, ja.theta2p};
     joint_states_fixed_pub_->publish(msg_new);
 
     auto msg_ee = geometry_msgs::msg::PointStamped();
     msg_ee.header.stamp = this->get_clock()->now();
+    msg_ee.header.frame_id = "world";
     Forbal2Controller::Point p = ee_position(ja); 
     msg_ee.point.x = p.x;
     msg_ee.point.y = p.y;
     msg_ee.point.z = p.z;
-    ee_position_pub_->publish(msg_ee);
+    ee_pos_pub_->publish(msg_ee);
 
-    // RCLCPP_INFO(this->get_logger(),"1a: %f 2a: %f 1p: %f 2p:%f", ja.theta1a, ja.theta2a, ja.theta1p, ja.theta2p);
   }
+}
+
+void Forbal2Controller::joint_controller_callback_(const control_msgs::msg::JointTrajectoryControllerState::SharedPtr msg) {
+  double theta1a = NAN;
+  double theta2a = NAN;
+
+  for (size_t i=0; i < msg->joint_names.size(); ++i) {
+    if (msg->joint_names[i] == joint_1_act_) theta1a = msg->reference.positions[i];
+    if (msg->joint_names[i] == joint_2_act_) theta2a = msg->reference.positions[i];
+  }
+  
+  if (theta1a && theta2a) {
+    JointAngles ja = forward_kinematics(theta1a, theta2a);
+
+    auto msg_new = sensor_msgs::msg::JointState();
+    msg_new.header.stamp = this->get_clock()->now();
+    msg_new.header.frame_id = "world";
+    msg_new.name = {joint_1_act_,joint_1_psv_,joint_2_act_,joint_2_psv_};
+    msg_new.position = {ja.theta1a, ja.theta1p, ja.theta2a, ja.theta2p};
+    joint_states_fixed_pub_->publish(msg_new);
+
+    auto msg_ee = geometry_msgs::msg::PointStamped();
+    msg_ee.header.stamp = this->get_clock()->now();
+    msg_ee.header.frame_id = "world";
+    Forbal2Controller::Point p = ee_position(ja); 
+    msg_ee.point.x = p.x;
+    msg_ee.point.y = p.y;
+    msg_ee.point.z = p.z;
+    ee_ref_pub_->publish(msg_ee);
+  }
+
 }
 
 rclcpp_action::GoalResponse Forbal2Controller::handle_goal(
@@ -446,8 +489,12 @@ Forbal2Controller::JointAngles Forbal2Controller::forward_kinematics(double thet
 
 Forbal2Controller::Point Forbal2Controller::ee_position(Forbal2Controller::JointAngles q) {
   Forbal2Controller::Point p;
-  p.x = l_*cos(q.theta1a)-(l_+le_)*cos(q.theta1a+q.theta1p);
-  p.z = l_*sin(q.theta1a)-(l_+le_)*sin(q.theta1a+q.theta1p);
+  float alpha = q.theta2a+q.theta1a;
+  float beta = M_PI-alpha;
+  float th2a = M_PI-beta;
+  float th2p_I = th2a-q.theta2a;
+  p.x = l_*cos(q.theta2a)+(l_+le_)*cos(th2p_I)+jx_;
+  p.z = l_*sin(q.theta2a)+(l_+le_)*sin(-th2p_I)+jz_;
   p.y = 0;
   return p;
 }

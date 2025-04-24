@@ -68,6 +68,11 @@ public:
       10
     );
 
+    ee_ref_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+      "ee_ref",
+      10
+    );
+
     ee_traj_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>(
       "ee_traj",
       10
@@ -271,7 +276,7 @@ private:
         msg_ee.header.stamp = this->get_clock()->now();
         msg_ee.header.frame_id = "world";
         msg_ee.pose = frame_to_PoseMsg(eemkr_pose_);
-        ee_pose_pub_->publish(msg_ee);
+        ee_ref_pub_->publish(msg_ee);
         } else {
           RCLCPP_ERROR(this->get_logger(),"Pose estimate failed, code: %d.",result);
         }
@@ -710,6 +715,7 @@ private:
   rclcpp::Subscription<control_msgs::msg::JointTrajectoryControllerState>::SharedPtr joint_controller_sub_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_fixed_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr ee_pose_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr ee_ref_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr ee_traj_pub_;
 
   rclcpp_action::Server<Follow5DOFTrajectory>::SharedPtr follow_5DOF_trajectory_action_server_;
