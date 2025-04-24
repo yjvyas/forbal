@@ -185,7 +185,7 @@
         <child link="link11"/>
         <origin rpy="0.00000000 0.00000000 0.00000000" xyz="0.00000000 -0.04310000  0.22750000"/>
         <axis xyz="0.00000000 1.00000000 0.00000000"/>
-        <limit lower="-1.25" upper="1.45" effort="30.0" velocity="0"/>
+        <limit lower="-1.27" upper="1.45" effort="30.0" velocity="0"/>
     </joint>
     <joint name="joint12" type="revolute">
         <parent link="link11"/>
@@ -242,7 +242,7 @@
     <joint name="joint_ee_mkr" type="fixed">
         <parent link="ee_imp"/>
         <child link="ee_mkr"/>
-        <origin rpy="3.1415926536 0.0 -1.5707963268" xyz="0.0 -0.02 -0.01"/>
+        <origin rpy="3.1415926536 0.0 -1.5707963268" xyz="0.0 0.0 0.0"/>
     </joint>
 </xacro:macro>
 </robot>
