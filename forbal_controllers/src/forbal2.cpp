@@ -342,7 +342,7 @@ void Forbal2Controller::execute(const std::shared_ptr<GoalHandleFollowPositionTr
       // Map s(t) to the splines
       double x = sx(s*tMax/d_total);
       double z = sz(s*tMax/d_total);
-      RCLCPP_INFO(this->get_logger(), "t: %f, st: %f, x: %f, z: %f",t,s*tMax/d_total,x,z);
+      // RCLCPP_INFO(this->get_logger(), "t: %f, st: %f, x: %f, z: %f",t,s*tMax/d_total,x,z);
 
       // Compute joint angles using inverse kinematics
       JointAngles q = inverse_kinematics(x, z);
