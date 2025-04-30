@@ -1,10 +1,10 @@
 # Forbal
-Forbal is the series of **For**ce **Bal**anced Manipulators built out of **Fo**u**r** **Ba**r **L**inkages. There are two variants:
+Forbal is the series of **For**ce **Bal**anced Manipulators built out of **F**ive **Ba**r **L**inkages. There are two variants:
 - Forbal2: a 2-DOF planar Force Balanced Four Bar Linkage
 - Forbal5: a 5-DOF extension of Forbal2 with additional degrees of freedom at the base and end-effector. It is still Force Balanced!
 
 ## Setup configuration
-### Hardware
+### Hardware & Materials
 - A workstation with at least 4GB RAM, 1.6GHz
 - Dynamixel U2D2 + 12V Power Hub
 - Dynamixel XC430-240T x 2 (For Forbal2)
