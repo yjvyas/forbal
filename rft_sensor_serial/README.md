@@ -5,4 +5,4 @@ Only BAUD rate (connection time only), Force Divider, Torque Divider, dev name i
 To set these and the Baud rate, use the Windows utility.
 
 To run the node with the params in config/params.yaml:
-```ros2 launch rft_sensor_serial rft_sensor_launch```
+```ros2 launch rft_sensor_serial rft_sensor_launch.py```
