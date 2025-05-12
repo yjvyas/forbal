@@ -27,8 +27,8 @@ ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DO
 ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DOFTrajectory "{
    type: 'joint_trajectory', 
    dt: 0.01, 
-   x: [0.22, 0.32, 0.22, 0.32, 0.22], 
-   y: [0.0, -0.1, 0.0, 0.1, 0.0], 
+   x: [0.22, 0.32, 0.42, 0.32, 0.22], 
+   y: [0.0, 0.0, 0.0, 0.0, 0.0], 
    z: [0.22, 0.32, 0.22, 0.12, 0.22], 
    pitch: [0.0, 0.0, 0.0, 0.0, 0.0], 
    yaw: [0.0, 0.0, 0.0, 0.0, 0.0], 

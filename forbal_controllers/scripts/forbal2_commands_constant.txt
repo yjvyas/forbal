@@ -94,15 +94,14 @@ ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/Follo
 }"
 
 ## trajectory 2: diamond (joint space)
-ros2 topic pub -1 /position_trajectory forbal_interfaces/msg/PositionTrajectory "{ 
-  header: { 
-    stamp: { sec: 0, nanosec: 0 }, 
-    frame_id: 'world' 
-  },
-  x: [0.22, 0.32, 0.42, 0.32, 0.22], 
-  y: [],
-  z: [0.22, 0.32, 0.22, 0.12, 0.22], 
-  time: [0.0, 1.0, 2.0, 3.0, 4.0], 
+ros2 action send_goal /follow_position_trajectory forbal_interfaces/action/FollowPositionTrajectory "{
+   type: 'joint_trajectory', 
+   dt: 0.01, 
+   x: [0.22, 0.32, 0.42, 0.32, 0.22], 
+   y: [], 
+   z: [0.22, 0.32, 0.22, 0.12, 0.22], 
+   time: [0.0, 1.0, 2.0, 3.0, 4.0], 
+   acc_time: 1.0
 }"
 
 ## trajectory 3: figure of 8

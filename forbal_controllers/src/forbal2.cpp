@@ -248,7 +248,6 @@ void Forbal2Controller::joint_controller_callback_(const control_msgs::msg::Join
     msg_ee.point.z = p.z;
     ee_ref_pub_->publish(msg_ee);
   }
-
 }
 
 rclcpp_action::GoalResponse Forbal2Controller::handle_goal(
@@ -261,21 +260,25 @@ rclcpp_action::GoalResponse Forbal2Controller::handle_goal(
       RCLCPP_WARN(this->get_logger(), "Goal time, x and z arrays have mismatched sizes");
       return rclcpp_action::GoalResponse::REJECT;
   } else {
-    if (goal->type == "constant_waypoints") {
+    if (goal->type == "joint_trajectory") {
+      RCLCPP_INFO(this->get_logger(),"Trajectory type is joint_trajectory.");
+      if (!check_trajectory(goal->time,goal->x,goal->z)) {
+        RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: trajectory invalid.");
+        return rclcpp_action::GoalResponse::REJECT; 
+      }
+    } else if (goal->type == "constant_waypoints") {
       RCLCPP_INFO(this->get_logger(),"Trajectory type is constant_waypoints.");
       if (!check_trajectory(goal->time,goal->x,goal->z)) {
         RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: trajectory invalid.");
         return rclcpp_action::GoalResponse::REJECT; 
       }
-    } 
-    else if (goal->type == "trapezoidal_waypoints") {
+    } else if (goal->type == "trapezoidal_waypoints") {
       RCLCPP_INFO(this->get_logger(),"Trajectory type is trapezoidal_waypoints.");
       if (!check_trajectory(goal->time,goal->x,goal->z)) {
         RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: trajectory invalid.");
         return rclcpp_action::GoalResponse::REJECT; 
       }
-    } 
-    else {
+    } else {
       RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: type %s unsupported.",goal->type.c_str());
       return rclcpp_action::GoalResponse::REJECT; 
     }
@@ -333,7 +336,40 @@ void Forbal2Controller::execute(const std::shared_ptr<GoalHandleFollowPositionTr
   marker.color.a = 1.0;
   marker.lifetime = rclcpp::Duration::from_seconds(tMax+2.0);
   
-  if (goal->type == "constant_waypoints") {
+  if (goal->type == "joint_trajectory") {
+    std::vector<double> q11, q21;
+    
+    for (size_t i = 0; i < goal->time.size(); ++i) {
+      q = inverse_kinematics(goal->x[i],goal->z[i]);
+      q11.push_back(q.theta1a);
+      q21.push_back(q.theta2a);
+    }
+
+    tk::spline sq11(goal->time,q11,
+                tk::spline::cspline_hermite,false,
+                tk::spline::first_deriv,0.0,
+                tk::spline::first_deriv,0.0);
+
+    tk::spline sq21(goal->time,q21,
+                tk::spline::cspline_hermite,false,
+                tk::spline::first_deriv,0.0,
+                tk::spline::first_deriv,0.0); 
+
+    for (double t = 0.0; t <= tMax; t += dt) {
+      auto joint = trajectory_msgs::msg::JointTrajectoryPoint();
+      joint.positions = {sq11(t), sq21(t)};
+      joint.time_from_start = rclcpp::Duration::from_seconds(t);
+      trajectory_goal.trajectory.points.push_back(joint);
+      JointAngles ja = forward_kinematics(sq11(t), sq21(t));
+
+      Forbal2Controller::Point p = ee_position(ja); 
+      geometry_msgs::msg::Point point;
+      point.x = p.x;
+      point.y = 0;
+      point.z = p.z;
+      marker.points.push_back(point);
+    }
+  } else if (goal->type == "constant_waypoints") {
     for (double t = 0.0; t <= tMax; t += dt) {
       x = sx(t);
       z = sz(t);

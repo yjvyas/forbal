@@ -526,7 +526,7 @@ private:
 
     float dt;
     if (goal->dt <= 0.0f) {
-      RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: dt not specified or incorrent, setting to 0.01");
+      RCLCPP_WARN(this->get_logger(),"FollowPositionTrajectory: dt not specified or incorrect, setting to 0.01");
       dt = 0.01;
     } else {
       dt = goal->dt;
@@ -545,6 +545,8 @@ private:
     std::vector<geometry_msgs::msg::Pose> traj_poses;
 
     if (goal->type == "joint_trajectory") {
+      std::vector<double> q0, q11, q21, q3, q4;
+
       for (size_t i = 0; i < goal->time.size(); ++i) {
         p.x = goal->x[i];
         p.y = goal->y[i];
@@ -552,12 +554,65 @@ private:
         p.pitch = goal->pitch[i];
         p.yaw = goal->yaw[i];
 
+        // RCLCPP_INFO(this->get_logger(), "Point %zu", i);
         if (inverse_kinematics(p, q)) {
-          trajectory_goal.trajectory.points.push_back(trajectory_msgs::msg::JointTrajectoryPoint());
-          trajectory_goal.trajectory.points.back().positions = {q._0, q._11, q._21, q._3, q._4};
-          trajectory_goal.trajectory.points.back().time_from_start = rclcpp::Duration::from_seconds(goal->time[i]);
-          traj_poses.push_back(frame_to_PoseMsg(point5D_to_Frame(p)));
-        };
+          // RCLCPP_INFO(this->get_logger(), "Inverse kinematics succeeded for point %zu", i);
+          q0.push_back(q._0);
+          q11.push_back(q._11);
+          q21.push_back(q._21);
+          q3.push_back(q._3);
+          q4.push_back(q._4);
+        } else {
+          auto result = std::make_shared<Follow5DOFTrajectory::Result>();
+          result->error_code = result->INVALID_GOAL;
+          result->error_string = "Trajectory out of bounds!";
+          goal_handle->abort(result);
+          return;
+        }
+      }
+
+      tk::spline sq0(goal->time, q0,
+                tk::spline::cspline_hermite, false,
+                tk::spline::first_deriv, 0.0,
+                tk::spline::first_deriv, 0.0);
+
+      tk::spline sq11(goal->time, q11,
+                tk::spline::cspline_hermite, false,
+                tk::spline::first_deriv, 0.0,
+                tk::spline::first_deriv, 0.0);
+      tk::spline sq21(goal->time, q21,
+                tk::spline::cspline_hermite, false,
+                tk::spline::first_deriv, 0.0,
+                tk::spline::first_deriv, 0.0);
+      tk::spline sq3(goal->time, q3,
+                tk::spline::cspline_hermite, false,
+                tk::spline::first_deriv, 0.0,
+                tk::spline::first_deriv, 0.0);
+      tk::spline sq4(goal->time, q4,
+                tk::spline::cspline_hermite, false,
+                tk::spline::first_deriv, 0.0,
+                tk::spline::first_deriv, 0.0);
+
+      KDL::JntArray joint_positions(5);
+      KDL::Frame eeref_jnt;
+      for (float t = 0.0; t <= tMax; t += dt) {
+        trajectory_goal.trajectory.points.push_back(trajectory_msgs::msg::JointTrajectoryPoint());
+        trajectory_goal.trajectory.points.back().positions = {sq0(t), sq11(t), sq21(t), sq3(t), sq4(t)};
+        trajectory_goal.trajectory.points.back().time_from_start = rclcpp::Duration::from_seconds(t);
+        
+        joint_positions(0) = q._0;
+        joint_positions(1) = q._21;
+        joint_positions(2) = q._22;
+        joint_positions(3) = q._3;
+        joint_positions(4) = q._4;
+
+        int result = solver_eemkr_pos_->JntToCart(joint_positions, eeref_jnt);
+        if (result==0) {
+          // RCLCPP_INFO(this->get_logger(),"ee_mkr x: %f, y: %f, z: %f",eemkr_pose_.p.x(),eemkr_pose_.p.y(),eemkr_pose_.p.z());
+          traj_poses.push_back(frame_to_PoseMsg(eeref_jnt));
+          } else {
+            RCLCPP_ERROR(this->get_logger(),"Pose estimate failed, code: %d.",result);
+          }
       }
     } else if (goal->type == "constant_waypoints") {
       for (float t = 0.0; t <= tMax; t += dt) {
