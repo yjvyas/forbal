@@ -353,19 +353,17 @@ private:
     // Computes the inverse kinematics for the end-effector position and orientation
     // returns true if an IK solution exists, false otherwise.
     float ei_angle = atan2(point.y,point.x);
-    // RCLCPP_INFO(this->get_logger(), "End-effector angle: %f", ei_angle);
+    RCLCPP_INFO(this->get_logger(), "End-effector angle: %f", ei_angle);
 
     KDL::Frame T_ei(KDL::Rotation::RotZ(ei_angle),
                     KDL::Vector(point.x, point.y, point.z));
-    // RCLCPP_INFO(this->get_logger(), "End-effector position: [%f, %f, %f]", T_ei.p.x(), T_ei.p.y(), T_ei.p.z());
+    RCLCPP_INFO(this->get_logger(), "End-effector position: [%f, %f, %f]", T_ei.p.x(), T_ei.p.y(), T_ei.p.z());
 
     KDL::Frame T_ei_proj = KDL::Frame(KDL::Rotation::RotZ(-ei_angle))*T_ei; // projected in the plane
-    // RCLCPP_INFO(this->get_logger(), "proj ei position: [%f, %f, %f]",T_ei_proj.p.x(), T_ei_proj.p.y(), T_ei_proj.p.z());
+    RCLCPP_INFO(this->get_logger(), "proj ei position: [%f, %f, %f]",T_ei_proj.p.x(), T_ei_proj.p.y(), T_ei_proj.p.z());
 
-    KDL::Frame T_j3_j4_inv = KDL::Frame(KDL::Rotation::RotY(point.pitch),KDL::Vector(-T_j3_j4.p.y(),0.0,T_j3_j4.p.x())).Inverse();
-    KDL::Frame T_em_proj = T_ei_proj * T_j3_j4_inv; // end-effector mount position in the projected frame
-    // RCLCPP_INFO(this->get_logger(), "proj em position: [%f, %f, %f]", T_em_proj.p.x(), T_em_proj.p.y(), T_em_proj.p.z());
-    KDL::Vector pd = KDL::Vector(T_em_proj.p.x()-x_off_,T_em_proj.p.y(), T_em_proj.p.z()-h_); // desired ee position from the height location
+    KDL::Vector p_j3_j4 = KDL::Rotation::RotY(-point.pitch)*KDL::Vector(-T_j3_j4.p.y(),0.0,T_j3_j4.p.x());
+    KDL::Vector pd = T_ei_proj.p - p_j3_j4 - KDL::Vector(x_off_,0.0,h_); // desired ee position from the height location
     // RCLCPP_INFO(this->get_logger(), "proj em position relative to height: [%f, %f, %f]", pd.x(), pd.y(), pd.z());
 
     q._0 = ei_angle; // angle of the joint 0 to hit the required angle
@@ -385,8 +383,8 @@ private:
       q._11 = alpha-q._21;
       q._12 = M_PI-beta;
       q._22 = M_PI-beta;
-      q._3 = q._22-q._21-point.pitch; // pitch relative to the end-effector
-      q._4 = -q._0+point.yaw;
+      q._3 = q._22-q._21+point.pitch; // pitch relative to the end-effector
+      q._4 = q._0-point.yaw;
 
       // RCLCPP_INFO(this->get_logger(), "Joint angles: q0 = %f, q11 = %f, q12 = %f, q21 = %f, q22 = %f, q3 = %f, q4 = %f", q._0, q._11, q._12, q._21, q._22, q._3, q._4);
       if (!check_joint_limits(q)) {
