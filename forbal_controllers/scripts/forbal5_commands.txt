@@ -10,8 +10,21 @@ ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory contr
   }
 }"
 
+## neutral position
+ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DOFTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.22, 0.22, 0.22], 
+   y: [0.0, 0.0, 0.0], 
+   z: [0.22, 0.22, 0.22], 
+   pitch: [0.0, 0.0, 0.0], 
+   yaw: [0.0, 0.0, 0.0], 
+   time: [2.0, 2.5, 3.0], 
+   acc_time: 0.25
+}"
 
-## example position trajectory
+
+## traj1: diamond
 ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DOFTrajectory "{
    type: 'trapezoidal_waypoints', 
    dt: 0.01, 
@@ -36,7 +49,21 @@ ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DO
    acc_time: 0.25
 }"
 
-## sideways circle trajectory
+## neutral position 2
+ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DOFTrajectory "{
+   type: 'constant_waypoints', 
+   dt: 0.01, 
+   x: [0.25, 0.25, 0.25], 
+   y: [0.0, 0.0, 0.0], 
+   z: [0.22, 0.22, 0.22], 
+   pitch: [0.0, 0.0, 0.0], 
+   yaw: [0.0, 0.0, 0.0], 
+   time: [2.0, 2.5, 3.0], 
+   acc_time: 0.25
+}"
+
+
+## traj2: sideways circle trajectory
 ros2 action send_goal /follow_5dof_trajectory forbal_interfaces/action/Follow5DOFTrajectory "{
    type: 'trapezoidal_waypoints', 
    dt: 0.01, 

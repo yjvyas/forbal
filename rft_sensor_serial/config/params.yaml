@@ -8,9 +8,15 @@ rft_sensor_serial:
     FREQUENCY: 500
     SET_CUTOFF_FILTER: True
     FILTER_FREQUENCY: 100
-    BIAS_FX: 6.93
-    BIAS_FY: 2.53
-    BIAS_FZ: 28.3
-    BIAS_TX: 0.49
-    BIAS_TY: 0.1
-    BIAS_TZ: -0.113
+    # BIAS_FX: -3.5 # fully idle
+    # BIAS_FY: 2.0
+    # BIAS_FZ: -4.5
+    # BIAS_TX: -0.15
+    # BIAS_TY: 0.655
+    # BIAS_TZ: 0.005
+    BIAS_FX: 12.0 # forbal 2
+    BIAS_FY: 0.0
+    BIAS_FZ: 0.0
+    BIAS_TX: 0.68
+    BIAS_TY: -0.64
+    BIAS_TZ: -0.08

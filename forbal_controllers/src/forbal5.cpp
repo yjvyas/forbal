@@ -383,8 +383,8 @@ private:
       q._11 = alpha-q._21;
       q._12 = M_PI-beta;
       q._22 = M_PI-beta;
-      q._3 = q._22-q._21+point.pitch; // pitch relative to the end-effector
-      q._4 = q._0-point.yaw;
+      q._3 = -q._22+q._21-point.pitch; // pitch relative to the end-effector
+      q._4 = -q._0+point.yaw;
 
       // RCLCPP_INFO(this->get_logger(), "Joint angles: q0 = %f, q11 = %f, q12 = %f, q21 = %f, q22 = %f, q3 = %f, q4 = %f", q._0, q._11, q._12, q._21, q._22, q._3, q._4);
       if (!check_joint_limits(q)) {
